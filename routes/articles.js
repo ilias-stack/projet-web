@@ -4,26 +4,13 @@ const prisma = new PrismaClient();
 
 const asyncHandler = require("express-async-handler");
 
-//! Login method
-router.get("/login", (req, res) => {
-  const { email, password } = req.query;
-  prisma.user
-    .findFirstOrThrow({ where: { email, password } })
-    .then((result) => {
-      req.session.currentUser = result;
-      res.json(result);
-    })
-    .catch((err) => {
-      res.status(404).json(err.message);
-    });
-});
-
-//! Logout method
-router.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) console.log(err);
-    else res.redirect("/");
-  });
+//! Library to handle files
+const multer = require("multer");
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
 });
 
 router.get(
@@ -31,7 +18,7 @@ router.get(
   asyncHandler(async function (req, res) {
     const take = +req.query.take || 100;
     const skip = +req.query.skip || 0;
-    const response = await prisma.user.findMany({ take, skip });
+    const response = await prisma.article.findMany({ take, skip });
     const statusCode = response.length > 0 ? 200 : 404;
     res.status(statusCode).json(response);
   })
@@ -40,7 +27,7 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async function (req, res) {
-    const response = await prisma.user.findUnique({
+    const response = await prisma.article.findUnique({
       where: { id: +req.params.id },
     });
     const statusCode = response == null || response.length <= 0 ? 404 : 200;
@@ -51,15 +38,16 @@ router.get(
 router.post(
   "/",
   asyncHandler(async function (req, res) {
+    console.log(req.body);
     try {
-      const { name, email, password, role } = req.body;
+      const { title, content, image, userId } = req.body;
       res.json(
-        await prisma.user.create({
+        await prisma.article.create({
           data: {
-            name,
-            email,
-            password,
-            role: role || "AUTHOR",
+            title,
+            content,
+            image,
+            userId: +userId,
           },
         })
       );
@@ -69,18 +57,59 @@ router.post(
   })
 );
 
+//! This section is to upload and retreive images to and from the server
+router.post(
+  "/Image",
+  upload.single("image"),
+  asyncHandler(async function (req, res) {
+    if (req.file) {
+      const { buffer, mimetype } = req.file;
+      const imageData = buffer;
+
+      const image = await prisma.image.create({
+        data: {
+          data: imageData,
+          type: mimetype,
+        },
+      });
+
+      res.status(200).end("Id : " + image.id);
+    }
+    res.end();
+  })
+);
+
+router.get(
+  "/Image/:id",
+  asyncHandler(async function (req, res) {
+    const image = await prisma.image.findUnique({
+      where: { id: +req.params.id },
+    });
+
+    if (!image) {
+      return res.status(404).send("Image not found");
+    }
+
+    const imageData = Buffer.from(image.data, "base64");
+    res.writeHead(200, {
+      "Content-Type": image.type,
+      "Content-Length": imageData.length,
+    });
+    res.end(imageData);
+  })
+);
+//! End of section
+
 router.patch(
   "/",
   asyncHandler(async function (req, res) {
     try {
-      const { id, name, email, password, role } = req.body;
-      const response = await prisma.user.update({
+      const { id, title, content } = req.body;
+      const response = await prisma.article.update({
         where: { id: +id },
         data: {
-          name,
-          email,
-          password,
-          role,
+          title,
+          content,
         },
       });
       const statusCode = response == null || response.length <= 0 ? 404 : 200;
@@ -95,7 +124,7 @@ router.delete(
   "/:id",
   asyncHandler(async function (req, res) {
     try {
-      const response = await prisma.user.delete({
+      const response = await prisma.article.delete({
         where: { id: +req.params.id },
       });
       const statusCode = response == null || response.length <= 0 ? 404 : 200;

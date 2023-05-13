@@ -4,34 +4,12 @@ const prisma = new PrismaClient();
 
 const asyncHandler = require("express-async-handler");
 
-//! Login method
-router.get("/login", (req, res) => {
-  const { email, password } = req.query;
-  prisma.user
-    .findFirstOrThrow({ where: { email, password } })
-    .then((result) => {
-      req.session.currentUser = result;
-      res.json(result);
-    })
-    .catch((err) => {
-      res.status(404).json(err.message);
-    });
-});
-
-//! Logout method
-router.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) console.log(err);
-    else res.redirect("/");
-  });
-});
-
 router.get(
   "/",
   asyncHandler(async function (req, res) {
     const take = +req.query.take || 100;
     const skip = +req.query.skip || 0;
-    const response = await prisma.user.findMany({ take, skip });
+    const response = await prisma.comment.findMany({ take, skip });
     const statusCode = response.length > 0 ? 200 : 404;
     res.status(statusCode).json(response);
   })
@@ -40,7 +18,7 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async function (req, res) {
-    const response = await prisma.user.findUnique({
+    const response = await prisma.comment.findUnique({
       where: { id: +req.params.id },
     });
     const statusCode = response == null || response.length <= 0 ? 404 : 200;
@@ -52,14 +30,15 @@ router.post(
   "/",
   asyncHandler(async function (req, res) {
     try {
-      const { name, email, password, role } = req.body;
+      const { email, content, articleId } = req.body;
       res.json(
-        await prisma.user.create({
+        await prisma.comment.create({
           data: {
-            name,
             email,
-            password,
-            role: role || "AUTHOR",
+            content,
+            Article: {
+              connect: { id: +articleId },
+            },
           },
         })
       );
@@ -73,14 +52,11 @@ router.patch(
   "/",
   asyncHandler(async function (req, res) {
     try {
-      const { id, name, email, password, role } = req.body;
-      const response = await prisma.user.update({
+      const { id, content } = req.body;
+      const response = await prisma.comment.update({
         where: { id: +id },
         data: {
-          name,
-          email,
-          password,
-          role,
+          content,
         },
       });
       const statusCode = response == null || response.length <= 0 ? 404 : 200;
@@ -95,7 +71,7 @@ router.delete(
   "/:id",
   asyncHandler(async function (req, res) {
     try {
-      const response = await prisma.user.delete({
+      const response = await prisma.comment.delete({
         where: { id: +req.params.id },
       });
       const statusCode = response == null || response.length <= 0 ? 404 : 200;
