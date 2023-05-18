@@ -26,6 +26,18 @@ router.get(
   })
 );
 
+//! get articles based on their categorie
+router.get(
+  "/articlecategorie/:id(\\d+)",
+  asyncHandler(async function (req, res) {
+    const response = await prisma.articleCategorie.findMany({
+      where: { categorieId: +req.params.id },
+    });
+    const statusCode = response == null || response.length <= 0 ? 404 : 200;
+    res.status(statusCode).json(response);
+  })
+);
+
 router.get(
   "/:id",
   asyncHandler(async function (req, res) {

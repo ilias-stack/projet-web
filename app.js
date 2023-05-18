@@ -47,11 +47,6 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  console.log(req.session.currentUser);
-  next();
-});
-
 //! Routes definition
 app.use("/users", usersRouter);
 app.use("/articles", articlesRouter);

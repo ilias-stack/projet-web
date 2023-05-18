@@ -26,6 +26,13 @@ router.get("/logout", (req, res) => {
   });
 });
 
+//! Get the current user Data from its sessioin id
+router.get("/session", (req, res) => {
+  const userInfo = req.session.currentUser;
+  if (userInfo == undefined) res.status(404).end("No Info");
+  else res.json(userInfo);
+});
+
 router.get(
   "/",
   asyncHandler(async function (req, res) {

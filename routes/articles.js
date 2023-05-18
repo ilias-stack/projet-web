@@ -18,17 +18,35 @@ router.get(
   asyncHandler(async function (req, res) {
     const take = +req.query.take || 100;
     const skip = +req.query.skip || 0;
-    const response = await prisma.article.findMany({ take, skip });
+    const response = await prisma.article.findMany({
+      take,
+      skip,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
     const statusCode = response.length > 0 ? 200 : 404;
     res.status(statusCode).json(response);
   })
 );
 
 router.get(
-  "/:id",
+  "/:id(\\d+)",
   asyncHandler(async function (req, res) {
     const response = await prisma.article.findUnique({
       where: { id: +req.params.id },
+    });
+    const statusCode = response == null || response.length <= 0 ? 404 : 200;
+    res.status(statusCode).json(response);
+  })
+);
+
+//! get categories based on their articles
+router.get(
+  "/articlecategorie/:id(\\d+)",
+  asyncHandler(async function (req, res) {
+    const response = await prisma.articleCategorie.findMany({
+      where: { articleId: +req.params.id },
     });
     const statusCode = response == null || response.length <= 0 ? 404 : 200;
     res.status(statusCode).json(response);
@@ -73,7 +91,7 @@ router.post(
         },
       });
 
-      res.status(200).end("Id : " + image.id);
+      res.status(200).json({ id: image.id });
     }
     res.end();
   })
