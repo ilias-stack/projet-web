@@ -56,9 +56,14 @@ router.get(
 router.post(
   "/",
   asyncHandler(async function (req, res) {
-    console.log(req.body);
     try {
       const { title, content, imageId, userId } = req.body;
+      console.log({
+        title,
+        content,
+        imageId: +imageId || null,
+        userId: +userId,
+      });
       res.json(
         await prisma.article.create({
           data: {

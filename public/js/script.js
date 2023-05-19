@@ -210,7 +210,7 @@ $(document).ready(function () {
           title: title[0].value,
           content: content[0].value,
           userId: currentUser.id,
-          imageId: imageId || null,
+          imageId: imageId,
         }),
       })
         .then((result) => {
