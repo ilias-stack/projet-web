@@ -11,7 +11,7 @@
     <nav>
       <img src="images/Logo.png" alt="LOGO" id="Logo" />
       <div id="topRightOptionPicker">
-        <p class="RightOption">New blog</p>
+        <p id="RightOption">New blog</p>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -90,6 +90,23 @@
     </div>
     <br />
 
+    <dialog id="blogForm">
+      <p class="closeFormButton">&#x2715;</p>
+      <h1>New blog</h1>
+      <hr />
+      <input type="text" name="title" placeholder="Title" /><br /><br />
+      <textarea name="content" placeholder="Content" rows="10"></textarea>
+      <br /><br />
+      <button id="fileChooser">Add an image</button>
+      <input
+        type="file"
+        id="actualFileChooser"
+        style="display: none"
+        accept="image/*"
+      />
+      <p id="postBlogButton">Post</p>
+    </dialog>
+
     <dialog id="loginForm">
       <p class="closeFormButton">&#x2715;</p>
       <h1>Log-in</h1>
@@ -128,6 +145,93 @@
       <button class="formButton">Sign-up</button>
     </dialog>
     <div id="articleList"></div>
+    <dialog id="articleComment">
+      <p class="closeFormButton">&#x2715;</p>
+      <br />
+      <div class="comments">
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.
+          </p>
+        </div>
+        <div class="comment">
+          <h4>ilias@mail.com</h4>
+          <p>
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+            Architecto, eum.sajdlsajdsalkjkjlkjie diuwquwqydiuwqkjd
+            hsadhjsadkhkjsadhsa7duiqhkwhduiwqhiudhuhwq iuwqhdiuwqhdiuwqhiudh
+          </p>
+        </div>
+      </div>
+
+      <div id="personalComment">
+        <input type="text" />
+        <button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="20"
+            fill="currentColor"
+            class="bi bi-send"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"
+            />
+          </svg>
+        </button>
+      </div>
+    </dialog>
 
     <div id="loadingIndicator" style="text-align: center">
       <img src="images/loading-gif.gif" height="50px" alt="" />

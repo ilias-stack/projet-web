@@ -12,6 +12,10 @@ body {
   background-color: #f1eae6;
 }
 
+textarea {   
+  resize: none;
+}
+
 #Logo {
   height: 70px;
 }
@@ -34,7 +38,7 @@ nav {
   font-size: 20px;
 }
 
-.RightOption {
+#RightOption {
   margin: 5px;
   height: fit-content;
   cursor: pointer;
@@ -42,7 +46,7 @@ nav {
   padding: 5px;
 }
 
-.RightOption:hover {
+#RightOption:hover {
   background-color: #006268;
   color: white;
 }
@@ -165,6 +169,49 @@ nav {
   font-size: large;
   background-color: rgba(253, 253, 253, 0);
 }
+
+#blogForm{
+  width: 50%;
+  border-radius: 10px;
+  background-color: #c2e0de;
+  color: #006268;
+  border: 1px #006268 solid;
+  text-align: start;
+  text-align: center;
+  position: absolute;
+}
+
+#blogForm input[type=text] {
+  border-radius: 30px;
+  background-color: rgba(253, 253, 253, 0.63);
+  border: none;
+  padding: 7px;
+  width: 70%;
+}
+
+#blogForm textarea{
+  border-radius: 5px;
+  background-color: rgba(253, 253, 253, 0.63);
+  border: none;
+  padding: 7px;
+  width: 70%;
+}
+
+#postBlogButton{
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#fileChooser {
+  border-radius: 30px;
+  background-color: rgba(253, 253, 253, 0.63);
+  color: #006268;
+  cursor: pointer;
+  border: none;
+  padding: 7px;
+}
+
 
 .closeFormButton{
   cursor: pointer;
@@ -293,6 +340,74 @@ nav {
   color: #006268;
 }
 
+#articleComment {
+  border: 2px #006268 solid;
+  border-radius: 10px;
+  max-width: 70%;
+  height: 70%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+#articleComment::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent;
+}
+
+#articleComment::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+#personalComment{
+  display: flex;
+  position: sticky;
+  min-height: 50px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+#personalComment input{
+  width: max-content;
+  border-radius: 200px;
+  background-color: #c2e0de;
+  color: #006268;
+  font-size: large;
+  height: 40px;
+  outline: none;
+  border: none;
+  width: 95%;
+}
+
+#personalComment button{
+  margin-left: 5px;
+  height: 40px;
+  background-color: #006268;
+  color: white;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+}
+
+#articleComment{
+  border: 2px #006268 solid;
+  border-radius: 10px;
+  min-width: 70%;
+  max-height: 70%;
+  overflow-y: scroll;
+}
+
+.comment{
+  margin: 5px 7px;
+  height: fit-content;
+  width: fit-content;
+}
+
+.comment p{
+  margin-top:-15px ;
+}
+
 
 
 
@@ -320,6 +435,10 @@ nav {
   }
   #sub-menu-wrap{
     left: 0%;
+  }
+
+  #blogForm{
+    width: 90%;
   }
   
 }

@@ -31,7 +31,6 @@ async function insertAllData() {
           password,
         },
       });
-      console.log(i, user);
     } catch (error) {
       console.log("ERROR");
     }

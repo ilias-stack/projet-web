@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:5000";
 let currentUser = null;
 
 //* counts the number of articles that were downloaded
@@ -21,11 +20,11 @@ $(document).ready(function () {
 
   //! display categories
   const categorieList = $("#categorieList");
-  // getCategories();
+  getCategories();
 
   //! display articles
   const articleList = $("#articleList");
-  // addArticles();
+  addArticles();
 
   //! adding auto generate if user is in the bottom of page
   const loadingIndicator = document.getElementById("loadingIndicator");
@@ -161,16 +160,130 @@ $(document).ready(function () {
       formButtons.last().text(str);
     }
   });
+
+  $("#fileChooser").click(function (e) {
+    $("#actualFileChooser").click();
+  });
+
+  //! add Blog implementation
+  const newBlogButton = $("#RightOption");
+  newBlogButton.click(function (e) {
+    if (currentUser) document.getElementById("blogForm").show();
+  });
+
+  const postBlog = $("#postBlogButton");
+  postBlog.click(async function (e) {
+    const imageInput = document.getElementById("actualFileChooser");
+    var imageId = null;
+
+    const formData = new FormData();
+    formData.append("image", imageInput.files[0]);
+    const title = $("#blogForm input[type=text]");
+    const content = $("#blogForm textarea");
+    if (title != "" && content != "") {
+      if (imageInput.files[0]) {
+        await fetch("/articles/Image", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Error uploading image");
+            }
+          })
+          .then((data) => {
+            imageId = data.id;
+            console.log(imageId);
+          })
+          .catch((error) => {
+            console.error("Error uploading image:", error);
+          });
+      }
+      await fetch("/articles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title[0].value,
+          content: content[0].value,
+          userId: currentUser.id,
+          imageId: imageId || null,
+        }),
+      })
+        .then((result) => {
+          if (result.ok) {
+            location.reload();
+          }
+        })
+        .catch((err) => console.log);
+    }
+  });
 });
 
-//! if is sessioCheck then the function will only check if the user is logged in
+//! adding the comment section to each article
+async function showCommentSection(articleId) {
+  if (currentUser) {
+    const commentSection = document.getElementById("articleComment");
+    commentSection.showModal();
+    const commentsList = $("#articleComment div.comments");
+    commentsList.empty();
+
+    const comments = await fetch(`/comments/${articleId}`);
+    const data = await comments.json();
+
+    data.forEach((element) => {
+      $(`<div class="comment">
+        <h4>${element.email}</h4>
+        <p>${element.content}</p>
+      </div>`).appendTo(commentsList);
+    });
+
+    const postCommentButton = $("#personalComment button");
+    postCommentButton.off("click"); // Remove existing click event handlers
+    postCommentButton.on("click", async function (e) {
+      if ($("#personalComment input").val() != "") {
+        const data = {
+          email: currentUser.email,
+          content: $("#personalComment input").val(),
+          articleId,
+        };
+        await fetch("/comments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Request failed with status: " + response.status);
+            }
+          })
+          .then((responseData) => {
+            $(`<div class="comment">
+              <h4>${responseData.email}</h4>
+              <p>${responseData.content}</p>
+            </div>`).appendTo(commentsList);
+            $("#personalComment input").val("");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    });
+  }
+}
+
+//! if  sessionCheck=true then the function will only check if the user is logged in
 async function login(sessionCheck, email, password) {
   let user;
-  if (sessionCheck) user = await fetch(API_URL + `/users/session`);
-  else
-    user = await fetch(
-      API_URL + `/users/login?email=${email}&password=${password}`
-    );
+  if (sessionCheck) user = await fetch(`/users/session`);
+  else user = await fetch(`/users/login?email=${email}&password=${password}`);
 
   if (user.ok) {
     currentUser = await user.json();
@@ -234,23 +347,21 @@ function showLoginModal() {
 async function addArticles(categorieType = "") {
   const options = { day: "numeric", month: "long", year: "numeric" };
   if (categorieType == "") {
-    const response = await fetch(
-      API_URL + `/articles?skip=${load_count}&take=10`
-    );
+    const response = await fetch(`/articles?skip=${load_count}&take=10`);
     const data = await response.json();
     load_count += data.length;
     console.log(load_count);
     data.forEach(async (articleObj) => {
-      const user = await fetch(API_URL + `/users/${articleObj.userId}`);
+      const user = await fetch(`/users/${articleObj.userId}`);
       const { name } = await user.json();
       const categoriesReq = await fetch(
-        API_URL + `/articles/articlecategorie/${articleObj.id}`
+        `/articles/articlecategorie/${articleObj.id}`
       );
       const categories = await categoriesReq.json();
       const categorieList = [];
       const fetchCategory = async (categorieObj) => {
         const categoriesReq = await fetch(
-          API_URL + `/categories/${categorieObj.categorieId}`
+          `/categories/${categorieObj.categorieId}`
         );
         const categorie = await categoriesReq.json();
         categorieList.push(categorie.name);
@@ -313,7 +424,7 @@ async function addArticles(categorieType = "") {
           const articleComments = $(
             '<div class="readComments">Read comments &#8594</div>'
           ).on("click", function () {
-            console.log(articleObj.id);
+            showCommentSection(articleObj.id);
           });
           articleData.append(articleCategories);
           articleData.append(articleTitle);
@@ -329,29 +440,27 @@ async function addArticles(categorieType = "") {
       article.appendTo(articleList);
     });
   } else {
-    const response = await fetch(API_URL + `/categories/${categorieType}`);
+    const response = await fetch(`/categories/${categorieType}`);
     const { id } = await response.json();
-    const articles = await fetch(
-      API_URL + `/categories/articlecategorie/${id}`
-    );
+    const articles = await fetch(`/categories/articlecategorie/${id}`);
     const data = await articles.json();
     data.forEach(async (element) => {
       $("#articleList").empty();
       load_count = 0;
       const { articleId } = element;
-      const response = await fetch(API_URL + `/articles/${articleId}`);
+      const response = await fetch(`/articles/${articleId}`);
       const articleObj = await response.json();
 
-      const user = await fetch(API_URL + `/users/${articleObj.userId}`);
+      const user = await fetch(`/users/${articleObj.userId}`);
       const { name } = await user.json();
       const categoriesReq = await fetch(
-        API_URL + `/articles/articlecategorie/${articleObj.id}`
+        `/articles/articlecategorie/${articleObj.id}`
       );
       const categories = await categoriesReq.json();
       const categorieList = [];
       const fetchCategory = async (categorieObj) => {
         const categoriesReq = await fetch(
-          API_URL + `/categories/${categorieObj.categorieId}`
+          `/categories/${categorieObj.categorieId}`
         );
         const categorie = await categoriesReq.json();
         categorieList.push(categorie.name);
@@ -416,7 +525,7 @@ async function addArticles(categorieType = "") {
           const articleComments = $(
             '<div class="readComments">Read comments &#8594</div>'
           ).on("click", function () {
-            console.log(articleObj.id);
+            showCommentSection(articleObj.id);
           });
           articleData.append(articleCategories);
           articleData.append(articleTitle);
@@ -436,7 +545,7 @@ async function addArticles(categorieType = "") {
 
 async function getCategories() {
   try {
-    const response = await fetch(API_URL + "/categories?take=10");
+    const response = await fetch("/categories?take=10");
     const data = await response.json();
 
     for (const element of data) {
@@ -444,7 +553,7 @@ async function getCategories() {
 
       try {
         const articleResponse = await fetch(
-          API_URL + "/categories/articlecategorie/" + element.id
+          "/categories/articlecategorie/" + element.id
         );
         const articleData = await articleResponse.json();
 

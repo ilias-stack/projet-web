@@ -18,8 +18,8 @@ router.get(
 router.get(
   "/:id",
   asyncHandler(async function (req, res) {
-    const response = await prisma.comment.findUnique({
-      where: { id: +req.params.id },
+    const response = await prisma.comment.findMany({
+      where: { articleId: +req.params.id },
     });
     const statusCode = response == null || response.length <= 0 ? 404 : 200;
     res.status(statusCode).json(response);
