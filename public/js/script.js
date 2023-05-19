@@ -169,6 +169,7 @@ $(document).ready(function () {
   const newBlogButton = $("#RightOption");
   newBlogButton.click(function (e) {
     if (currentUser) document.getElementById("blogForm").show();
+    else alert("You must login!");
   });
 
   const postBlog = $("#postBlogButton");
@@ -276,7 +277,7 @@ async function showCommentSection(articleId) {
           });
       }
     });
-  }
+  } else alert("You must login!");
 }
 
 //! if  sessionCheck=true then the function will only check if the user is logged in
